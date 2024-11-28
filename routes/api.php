@@ -31,6 +31,8 @@ use App\Http\Controllers\CoberturaController;
 use App\Http\Controllers\PolizaController;
 use App\Http\Controllers\PolizaCoberturaController;
 use App\Http\Controllers\IncidenteController;
+use App\Http\Controllers\TipoIncidenteController;
+use App\Http\Controllers\ReportePolicialController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +49,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/backup', [BackupController::class, 'runBackup']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+});
+    
     Route::post('logout', [AuthController::class, 'logout']);
     Route::apiResource('pais', PaisController::class);
     Route::apiResource('roles', RolController::class);
@@ -90,4 +94,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('comprobante/{id}/download', [ComprobantePagoController::class, 'downloadComprobante']);
     Route::put('comprobante/{id}/anular', [ComprobantePagoController::class, 'anularComprobante']);
     Route::get('incidente/estadisticas', [IncidenteController::class, 'getEstadisticasPorCobertura']);
-});
+    Route::apiResource('tipo_incidente', TipoIncidenteController::class);
+    Route::apiResource('reporte_policial', ReportePolicialController::class);
+    Route::get('reporte_policial/incidente/{incidenteId}', [ReportePolicialController::class, 'getReportesByIncidente']);
+

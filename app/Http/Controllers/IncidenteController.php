@@ -11,6 +11,7 @@ class IncidenteController extends Controller
    {
        $incidentes = Incidente::with([
            'poliza', 
+           'tipoIncidente',
            'cobertura',
            'usuarioRegistro'
        ])->get();
@@ -25,13 +26,25 @@ class IncidenteController extends Controller
    {
        $request->validate([
            'poliza_id' => 'required|exists:poliza,id',
+           'tipo_incidente_id' => 'required|exists:tipo_incidente,id',
            'fecha_incidente' => 'required|date',
            'descripcion' => 'required|string',
            'ubicacion' => 'nullable|string',
            'monto_estimado' => 'nullable|numeric|min:0',
            'estado' => 'required|string',
            'cobertura_id' => 'required|exists:cobertura,id',
-           'usuario_registro_id' => 'required|exists:users,id'
+           'usuario_registro_id' => 'required|exists:users,id',
+           'maps_url' => 'nullable|string',
+           'imagen_1' => 'nullable|string',
+           'imagen_2' => 'nullable|string',
+           'imagen_3' => 'nullable|string',
+           'imagen_4' => 'nullable|string',
+           'descripcion_imagen' => 'nullable|string',
+           'fecha_reporte' => 'nullable|date',
+           'estado_reporte' => 'nullable|string',
+           'url_imagen' => 'nullable|string',
+           'oficial_cargo' => 'nullable|string',
+           'observacion' => 'nullable|string'
        ]);
 
        $incidente = Incidente::create($request->all());
@@ -39,7 +52,7 @@ class IncidenteController extends Controller
        return response()->json([
            'success' => true,
            'message' => 'Incidente registrado exitosamente',
-           'data' => $incidente->load(['poliza', 'cobertura', 'usuarioRegistro'])
+           'data' => $incidente->load(['poliza', 'tipoIncidente', 'cobertura', 'usuarioRegistro'])
        ], 201);
    }
 
@@ -47,6 +60,7 @@ class IncidenteController extends Controller
    {
        $incidente = Incidente::with([
            'poliza.vehiculo',
+           'tipoIncidente',
            'cobertura',
            'usuarioRegistro'
        ])->findOrFail($id);
@@ -61,13 +75,25 @@ class IncidenteController extends Controller
    {
        $request->validate([
            'poliza_id' => 'required|exists:poliza,id',
+           'tipo_incidente_id' => 'required|exists:tipo_incidente,id',
            'fecha_incidente' => 'required|date',
            'descripcion' => 'required|string',
            'ubicacion' => 'nullable|string',
            'monto_estimado' => 'nullable|numeric|min:0',
            'estado' => 'required|string',
            'cobertura_id' => 'required|exists:cobertura,id',
-           'usuario_registro_id' => 'required|exists:users,id'
+           'usuario_registro_id' => 'required|exists:users,id',
+           'maps_url' => 'nullable|string',
+           'imagen_1' => 'nullable|string',
+           'imagen_2' => 'nullable|string',
+           'imagen_3' => 'nullable|string',
+           'imagen_4' => 'nullable|string',
+           'descripcion_imagen' => 'nullable|string',
+           'fecha_reporte' => 'nullable|date',
+           'estado_reporte' => 'nullable|string',
+           'url_imagen' => 'nullable|string',
+           'oficial_cargo' => 'nullable|string',
+           'observacion' => 'nullable|string'
        ]);
 
        $incidente = Incidente::findOrFail($id);
@@ -91,12 +117,10 @@ class IncidenteController extends Controller
        ]);
    }
 
-   // Métodos adicionales
-
    public function getIncidentesByPoliza($polizaId)
    {
        $incidentes = Incidente::where('poliza_id', $polizaId)
-           ->with(['cobertura', 'usuarioRegistro'])
+           ->with(['tipoIncidente', 'cobertura', 'usuarioRegistro'])
            ->get();
 
        return response()->json([
@@ -105,61 +129,11 @@ class IncidenteController extends Controller
        ]);
    }
 
-   public function getIncidentesByFecha(Request $request)
+   public function getEstadisticasPorTipo()
    {
-       $request->validate([
-           'fecha_inicio' => 'required|date',
-           'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
-       ]);
-
-       $incidentes = Incidente::whereBetween('fecha_incidente', [
-           $request->fecha_inicio,
-           $request->fecha_fin
-       ])->with(['poliza', 'cobertura', 'usuarioRegistro'])->get();
-
-       return response()->json([
-           'success' => true,
-           'data' => $incidentes
-       ]);
-   }
-
-   public function getIncidentesPendientes()
-   {
-       $incidentes = Incidente::where('estado', 'pendiente')
-           ->with(['poliza', 'cobertura', 'usuarioRegistro'])
-           ->get();
-
-       return response()->json([
-           'success' => true,
-           'data' => $incidentes
-       ]);
-   }
-
-   public function actualizarEstado(Request $request, $id)
-   {
-       $request->validate([
-           'estado' => 'required|string',
-           'observacion' => 'nullable|string'
-       ]);
-
-       $incidente = Incidente::findOrFail($id);
-       $incidente->update([
-           'estado' => $request->estado,
-           'descripcion' => $incidente->descripcion . "\n\nObservación: " . $request->observacion
-       ]);
-
-       return response()->json([
-           'success' => true,
-           'message' => 'Estado del incidente actualizado exitosamente',
-           'data' => $incidente
-       ]);
-   }
-
-   public function getEstadisticasPorCobertura()
-   {
-       $estadisticas = Incidente::with('cobertura')
-           ->selectRaw('cobertura_id, count(*) as total, sum(monto_estimado) as monto_total')
-           ->groupBy('cobertura_id')
+       $estadisticas = Incidente::with('tipoIncidente')
+           ->selectRaw('tipo_incidente_id, count(*) as total, sum(monto_estimado) as monto_total')
+           ->groupBy('tipo_incidente_id')
            ->get();
 
        return response()->json([

@@ -54,7 +54,10 @@ class DatabaseSeeder extends Seeder
             CuotaSeeder::class,
             PagoSeeder::class,
             ComprobantePagoSeeder::class,
-            IncidenteSeeder::class,
+            TipoIncidenteSeeder::class,
+        IncidenteSeeder::class,
+        
+            
 
             // Seeder de usuarios administrativos (puedes renombrar según el caso)
             UserSeeder::class,               // Seeder para usuarios (usuario de la aplicación)
