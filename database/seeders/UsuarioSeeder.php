@@ -43,5 +43,29 @@ class UsuarioSeeder extends Seeder
                 'user_id' => $userId,  // Relacionar con el ID del usuario creado en la tabla `users`
             ]);
         }
+        $userIdGrover = DB::table('users')->insertGetId([
+            'name' => 'Grover Choque',
+            'email' => 'groverchoquevillca80@gmail.com',
+            'password' => Hash::make('muertemuerte')
+        ]);
+
+        // Creamos el registro extendido de Grover en la tabla usuario
+        DB::table('usuario')->insert([
+            'nombre' => 'Grover',
+            'apellido' => 'Choque',
+            'email' => 'groverchoquevillca80@gmail.com',
+            'contrasena' => Hash::make('muerte'),
+            'estado' => 'activo',
+            'ci' => '8745632',
+            'celular' => '76543210',
+            'direccion' => 'Av. Principal #123, La Paz',
+            'tipoUsuario_id' => 1, // Asumiendo que 1 es el ID para administrador
+            'rol_id' => 1, // Asumiendo que 1 es el ID para administrador
+            'pais_id' => 1, // Bolivia
+            'ciudad_id' => 1, // La Paz
+            'user_id' => $userIdGrover
+        ]);
+    
+
     }
 }
